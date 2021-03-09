@@ -2,7 +2,7 @@
 
 import RPi.GPIO as GPIO
 import time
-from stateIO import stateRead
+from stateIO import stateRead,stateChange
 
 def garageSwitch():
     switch = 27
@@ -15,9 +15,9 @@ def garageSwitch():
         time.sleep(0.2)
         GPIO.setup(switch, GPIO.LOW)
         time.sleep(0.2)
-        print('Switch status = ', GPIO.input(switch))
 
     GPIO.cleanup()
 
-    stateRead()
+    stateChange('garage')
+
     
