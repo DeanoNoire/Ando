@@ -5,19 +5,18 @@ import time
 from stateIO import stateRead,stateChange
 
 def garageSwitch():
-    switch = 27
-
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(switch, GPIO.OUT)
-
+    garageRelay = 27
+    GPIO.setup(garageRelay, GPIO.OUT)
     for i in range(1):
-        GPIO.setup(switch, GPIO.HIGH)
+        GPIO.setup(garageRelay, GPIO.HIGH)
         time.sleep(0.2)
-        GPIO.setup(switch, GPIO.LOW)
+        GPIO.setup(garageRelay, GPIO.LOW)
         time.sleep(0.2)
 
-    GPIO.cleanup()
-
+    GPIO.cleanup(garageRelay)
     stateChange('garage')
+    
+    
 
     
