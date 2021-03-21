@@ -7,6 +7,13 @@ def stateRead():
     print('Garage stav:'+str(data['garage']))
     print('Gate stav: '+str(data['gate']))
     return('State: garage='+str(data['garage'])+' gate='+str(data['gate']))
+
+def stateReadJSON():
+    json_file = open('states.json','r')
+    data = json.load(json_file)
+    print('Garage stav:'+str(data['garage']))
+    print('Gate stav: '+str(data['gate']))
+    return(data['garage'],data['gate'])
     
 def stateChange(obj):
     #Čtení stavu
