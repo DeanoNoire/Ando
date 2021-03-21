@@ -1,115 +1,157 @@
 import tm1637
 from time import sleep
+from multiprocessing import Process
 import json
 
-tm = tm1637.TM1637(clk=21,dio=20)
+tm = tm1637.TM1637(clk=21,dio=20) #brana
+tm2 = tm1637.TM1637(clk=6,dio=5)  #garáž
 
 tm.brightness(val=2)
+tm2.brightness(val=2)
 
-sleepTime = 0.3
+
+sleepTime = 0.2
 loops = 5
 hodnota = 0
 
-s100 = 0b00000001
-s110 = 0b01000001
-s111 = 0b01001001
-s011 = 0b01001000
-s001 = 0b00001000
+horniPul  = 0b00000110
+spodniPul = 0b00110000
+sCel      = 0b00110110
+
+def garazWrite(a,b,c,d):
+    tm.write([a,b,c,d])
+    sleep(sleepTime)
+
+def branaWrite(a,b,c,d):
+    tm2.write([a,b,c,d])
+    sleep(sleepTime)
+
+def obojeWrite(a,b,c,d,e,f,g,h):
+    tm.write([a,b,c,d])
+    tm2.write([e,f,g,h])
+    sleep(sleepTime)
+
+
+
+def obojeReset():
+        tm.write([0,0,0,0])
+        tm2.write([0,0,0,0])
 
 def stateReadDisplay():
     json_file = open('states.json','r')
     data = json.load(json_file)
-    return data['garage']+(data['gate']*2)
+    return data['garage'],data['gate']
     
-def writeState(hodnota):
-    if 50 <= hodnota <= 51:
-        tm.write([s100,s100,0,0])
-        sleep(sleepTime)
-        tm.write([s110,s110,0,0])
-        sleep(sleepTime)
-        tm.write([s111,s111,0,0])
-        sleep(sleepTime)
-        tm.write([0,0,0,0])
-        #print("Změna garáž: Otevírání - "+str(hodnota))
+def writeState(garaz,brana):
+    obojeReset()
+    if garaz == 50 and brana < 50:
+        garazWrite(spodniPul,0,0,0)
+        garazWrite(sCel,0,0,0)
+        garazWrite(horniPul,spodniPul,0,0)
+        garazWrite(0,sCel,0,0)
+        garazWrite(0,horniPul,spodniPul,0)
+        garazWrite(0,0,sCel,0)
+        garazWrite(0,0,horniPul,spodniPul)
+        garazWrite(0,0,0,sCel)
+        garazWrite(0,0,0,horniPul)
+        print("Změna garáž: Otevírání")
 
-    elif 100 <= hodnota <= 101:
-        tm.write([0,0,s100,s100])
-        sleep(sleepTime)
-        tm.write([0,0,s110,s110])
-        sleep(sleepTime)
-        tm.write([0,0,s111,s111])
-        sleep(sleepTime)
-        tm.write([0,0,0,0])
-        #print("Změna brána: Otevírání - "+str(hodnota))
+    elif garaz == 500 and brana < 50: 
+        garazWrite(0,0,0,horniPul)
+        garazWrite(0,0,0,sCel)
+        garazWrite(0,0,horniPul,spodniPul)
+        garazWrite(0,0,sCel,0)
+        garazWrite(0,horniPul,spodniPul,0)
+        garazWrite(0,sCel,0,0)
+        garazWrite(horniPul,spodniPul,0,0)
+        garazWrite(sCel,0,0,0)
+        garazWrite(spodniPul,0,0,0)
+        print("Změna garáž: Zavírání")
 
-    elif 500 <= hodnota <= 501:
-        tm.write([s001,s001,0,0])
-        sleep(sleepTime)
-        tm.write([s011,s011,0,0])
-        sleep(sleepTime)
-        tm.write([s111,s111,0,0])
-        sleep(sleepTime)
-        tm.write([0,0,0,0])
-        #print("Změna garáž: Zavírání - "+str(hodnota))
 
-    elif 1000 <= hodnota <= 1001:
-        tm.write([0,0,s001,s001])
-        sleep(sleepTime)
-        tm.write([0,0,s011,s011])
-        sleep(sleepTime)
-        tm.write([0,0],s111,s111)
-        sleep(sleepTime)
-        tm.write([0,0,0,0])
-        #print("Změna brána: Zavírání"+str(hodnota))
+    elif garaz < 50 and brana == 50:
+        branaWrite(spodniPul,0,0,0)
+        branaWrite(sCel,0,0,0)
+        branaWrite(horniPul,spodniPul,0,0)
+        branaWrite(0,sCel,0,0)
+        branaWrite(0,horniPul,spodniPul,0)
+        branaWrite(0,0,sCel,0)
+        branaWrite(0,0,horniPul,spodniPul)
+        branaWrite(0,0,0,sCel)
+        branaWrite(0,0,0,horniPul)
+        print("Změna brana: Otevírání")
 
-    elif hodnota == 600:
-        tm.write([s001,s001,s100,s100])
-        sleep(sleepTime)
-        tm.write([s011,s011,s110,s110])
-        sleep(sleepTime)
-        tm.write([s111,s111,s111,s111])
-        sleep(sleepTime)
-        tm.write([0,0,0,0])
-        #print("Změna oboje: garage close / brána open "+str(hodnota))
+    elif garaz < 50 and brana == 500: 
+        branaWrite(0,0,0,horniPul)
+        branaWrite(0,0,0,sCel)
+        branaWrite(0,0,horniPul,spodniPul)
+        branaWrite(0,0,sCel,0)
+        branaWrite(0,horniPul,spodniPul,0)
+        branaWrite(0,sCel,0,0)
+        branaWrite(horniPul,spodniPul,0,0)
+        branaWrite(sCel,0,0,0)
+        branaWrite(spodniPul,0,0,0)
+        print("Změna brána: Zavírání")
 
-    elif hodnota == 1050:
-        tm.write([s100,s100,s001,s001])
-        sleep(sleepTime)
-        tm.write([s110,s110,s011,s011])
-        sleep(sleepTime)
-        tm.write([s111,s111,s111,s111])
-        sleep(sleepTime)
-        tm.write([0,0,0,0])
-        #print("Změna oboje: garage open / brána close "+str(hodnota))
+    elif garaz == 50 and brana == 50:
+        obojeWrite(spodniPul,0,0,0,spodniPul,0,0,0)
+        obojeWrite(sCel,0,0,0,sCel,0,0,0)
+        obojeWrite(horniPul,spodniPul,0,0,horniPul,spodniPul,0,0)
+        obojeWrite(0,sCel,0,0,0,sCel,0,0)
+        obojeWrite(0,horniPul,spodniPul,0,0,horniPul,spodniPul,0)
+        obojeWrite(0,0,sCel,0,0,0,sCel,0)
+        obojeWrite(0,0,horniPul,spodniPul,0,0,horniPul,spodniPul)
+        obojeWrite(0,0,0,sCel,0,0,0,sCel)
+        obojeWrite(0,0,0,horniPul,0,0,0,horniPul)
+        print("Změna oboje: Otevírání")
 
-    elif hodnota == 150:
-        tm.write([s100,s100,s100,s100])
-        sleep(sleepTime)
-        tm.write([s110,s110,s110,s110])
-        sleep(sleepTime)
-        tm.write([s111,s111,s111,s111])
-        sleep(sleepTime)
-        tm.write([0,0,0,0])
-        #print("Změna oboje: open "+str(hodnota))
+    elif garaz == 500 and brana == 500:
+        obojeWrite(0,0,0,horniPul,0,0,0,horniPul)
+        obojeWrite(0,0,0,sCel,0,0,0,sCel)
+        obojeWrite(0,0,horniPul,spodniPul,0,0,horniPul,spodniPul)
+        obojeWrite(0,0,sCel,0,0,0,sCel,0)
+        obojeWrite(0,horniPul,spodniPul,0,0,horniPul,spodniPul,0)
+        obojeWrite(0,sCel,0,0,0,sCel,0,0)
+        obojeWrite(horniPul,spodniPul,0,0,horniPul,spodniPul,0,0)
+        obojeWrite(sCel,0,0,0,sCel,0,0,0)
+        obojeWrite(spodniPul,0,0,0,spodniPul,0,0,0)
+        print("Změna oboje: Zavírání")
 
-    elif hodnota == 1500:
-        tm.write([s001,s001,s001,s001])
-        sleep(sleepTime)
-        tm.write([s011,s011,s011,s011])
-        sleep(sleepTime)
-        tm.write([s111,s111,s111,s111])
-        sleep(sleepTime)
-        tm.write([0,0,0,0])
-        #print("Změna oboje: close "+str(hodnota))
+    elif garaz == 50 and brana == 500:
+        obojeWrite(spodniPul,0,0,0,0,0,0,horniPul)
+        obojeWrite(sCel,0,0,0,0,0,0,sCel)
+        obojeWrite(horniPul,spodniPul,0,0,0,0,horniPul,spodniPul)
+        obojeWrite(0,sCel,0,0,0,0,sCel,0)
+        obojeWrite(0,horniPul,spodniPul,0,0,horniPul,spodniPul,0)
+        obojeWrite(0,0,sCel,0,0,sCel,0,0)
+        obojeWrite(0,0,horniPul,spodniPul,horniPul,spodniPul,0,0)
+        obojeWrite(0,0,0,sCel,sCel,0,0,0)
+        obojeWrite(0,0,0,horniPul,spodniPul,0,0,0)
+        print("Garáž otevírání, brána zavírání")
+
+    elif garaz == 500 and brana == 50:
+        obojeWrite(0,0,0,horniPul,spodniPul,0,0,0)
+        obojeWrite(0,0,0,sCel,sCel,0,0,0)
+        obojeWrite(0,0,horniPul,spodniPul,horniPul,spodniPul,0,0)
+        obojeWrite(0,0,sCel,0,0,sCel,0,0)
+        obojeWrite(0,horniPul,spodniPul,0,0,horniPul,spodniPul,0)
+        obojeWrite(0,sCel,0,0,0,0,sCel,0)
+        obojeWrite(horniPul,spodniPul,0,0,0,0,horniPul,spodniPul)
+        obojeWrite(sCel,0,0,0,0,0,0,sCel)
+        obojeWrite(spodniPul,0,0,0,0,0,0,horniPul)
+        print("Garáž zavírání, brána otevírání")
 
     else:
         print("Neznámý stav: "+str(hodnota))
-
+    obojeReset()
 
 def checkState():
-    hodnota = stateReadDisplay()
-    if  hodnota > 49:
-        writeState(hodnota)
+    garaz, brana = stateReadDisplay()
+    print('Garaz'+str(garaz))
+    print('Brana'+str(brana))
+    if  garaz+brana > 49:
+        writeState(garaz,brana)
+
 
 while True:
     checkState()
