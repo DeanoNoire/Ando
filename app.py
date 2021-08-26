@@ -1,7 +1,8 @@
-from flask import Flask, render_template, jsonify
-from garageOpen import garageSwitch
+from flask import Flask, render_template, jsonify,redirect
+import garageOpen
 from stateIO import stateReset,stateRead,stateReadJSON
 import RPi.GPIO as GPIO
+
 import time
 
 GPIO.setmode(GPIO.BCM)
@@ -11,12 +12,16 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return stateRead()
+    gar, gat = stateReadJSON()
+    garStr = 'gar'+str(gar)
+    gatStr = 'gat'+str(gat)
+    return render_template('index.html',garage=garStr,gate=gatStr)
 
 @app.route('/garageOpen')
-def garageOpen():
-    garageSwitch()
-    return stateRead()
+def garageOpenFun():
+    garageOpen.garageSwitch()
+    #return stateRead()
+    return redirect('/')
 
 @app.route('/json')
 def postJson():
@@ -33,6 +38,6 @@ def resetState(gar,gat):
     return stateRead()
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(host='0.0.0.0', port=5000)
 
    

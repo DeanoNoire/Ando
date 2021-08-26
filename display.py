@@ -3,6 +3,8 @@ from time import sleep
 from multiprocessing import Process
 import json
 
+
+
 tm = tm1637.TM1637(clk=21,dio=20) #brana
 tm2 = tm1637.TM1637(clk=6,dio=5)  #garáž
 
@@ -38,7 +40,7 @@ def obojeReset():
         tm2.write([0,0,0,0])
 
 def stateReadDisplay():
-    json_file = open('states.json','r')
+    json_file = open('/home/pi/Ando/states.json','r')
     data = json.load(json_file)
     return data['garage'],data['gate']
     
@@ -153,6 +155,9 @@ def checkState():
         writeState(garaz,brana)
 
 
-while True:
+#while True:
+ #   checkState()
+ #   sleep(2)
+
+if __name__=='__main__':
     checkState()
-    sleep(2)

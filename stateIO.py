@@ -1,15 +1,16 @@
 import json
 from time import sleep
+import display
 
 def stateRead():
-    json_file = open('states.json','r')
+    json_file = open('/home/pi/Ando/states.json','r')
     data = json.load(json_file)
     print('Garage stav:'+str(data['garage']))
     print('Gate stav: '+str(data['gate']))
     return('State: garage='+str(data['garage'])+' gate='+str(data['gate']))
 
 def stateReadJSON():
-    json_file = open('states.json','r')
+    json_file = open('/home/pi/Ando/states.json','r')
     data = json.load(json_file)
     print('Garage stav:'+str(data['garage']))
     print('Gate stav: '+str(data['gate']))
@@ -17,7 +18,7 @@ def stateReadJSON():
     
 def stateChange(obj):
     #Čtení stavu
-    json_file = open("states.json", "r")
+    json_file = open("/home/pi/Ando/states.json", "r")
     data = json.load(json_file)
     obj_stav = data[obj]
     json_file.close()
@@ -27,16 +28,17 @@ def stateChange(obj):
     data[obj] = obj_stav_novy
 
     stateInProgress(obj,obj_stav_novy)
-    sleep(5)
+    display.checkState()
+    sleep(4)
 
     # Uložení nového stavu
-    jsonFile = open("states.json", "w+")
+    jsonFile = open("/home/pi/Ando/states.json", "w+")
     jsonFile.write(json.dumps(data))
     jsonFile.close()
 
 def stateInProgress(obj,novyStav):
     #Čtení nového stavu
-    json_file = open("states.json", "r")
+    json_file = open("/home/pi/Ando/states.json", "r")
     data = json.load(json_file)
     json_file.close()
     
@@ -45,16 +47,15 @@ def stateInProgress(obj,novyStav):
     elif novyStav == 0:
         data[obj] = 500
 
-
     # Uložení nového stavu
-    jsonFile = open("states.json", "w+")
+    jsonFile = open("/home/pi/Ando/states.json", "w+")
     jsonFile.write(json.dumps(data))
     jsonFile.close()
 
 
 def stateReset(garage,gate):
     #Čtení stavu
-    json_file = open("states.json", "r")
+    json_file = open("/home/pi/Ando/states.json", "r")
     data = json.load(json_file)
     json_file.close()
 
@@ -62,6 +63,10 @@ def stateReset(garage,gate):
     data['gate'] = gate
 
     # Uložení nového stavu
-    jsonFile = open("states.json", "w+")
+    jsonFile = open("/home/pi/Ando/states.json", "w+")
     jsonFile.write(json.dumps(data))
     jsonFile.close()
+
+
+if __name__=='__main__':
+    stateRead()

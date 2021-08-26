@@ -4,6 +4,7 @@ import RPi.GPIO as GPIO
 import time
 from stateIO import stateRead,stateChange
 
+
 def garageSwitch():
     GPIO.setmode(GPIO.BCM)
     garageRelay = 27
@@ -16,7 +17,8 @@ def garageSwitch():
 
     GPIO.cleanup(garageRelay)
     stateChange('garage')
-    
-    
+
+if __name__=='__main__':
+    garageSwitch()
 
     
