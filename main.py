@@ -1,7 +1,9 @@
 import asyncio
 import scrapper
 import stateIO
+import buttonReader
 
+buttonReader.buttonSetup()
 
 
 async def scrappin():
@@ -20,8 +22,15 @@ async def scrappin():
         
         await asyncio.sleep(1)
 
+async def buttonRead():
+        buttonReader.waitButton()
 
-asyncio.run(scrappin())
+async def main():
+    scrappinTask = asyncio.create_task(scrappin())
+    buttonreTask = asyncio.create_task(buttonRead())
+    await asyncio.gather(scrappinTask, buttonreTask)
+
+asyncio.run(main())
 
 
 
